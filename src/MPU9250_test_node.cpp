@@ -15,6 +15,25 @@ int main(int argc, char **argv)
     time_sleep(0.1);
 
     //PWR_MGMT_1をクリア
-    i2c_write_byte_data(pi, handle, 0x37, 0x02);
+    i2c_write_byte_data(pi, handle, 0x37, 0x00);
     time_sleep(0.1);
+
+    //生データを取得する
+    while(ros::ok())
+    {
+        char data[6];
+        i2c_read_i2c_block_data(pi, handle, 0x3B, data, 6); //i2c_read_i2c_block_data(int pi, unsigned handle, unsigned i2c_reg, char *buf, unsigned count(欲しいバイト数))
+        float rawX = data[0] << 8 | data[1];  //上位ビットが先
+        float rawY = data[2] << 8 | data[3];  //上位ビットが先
+        float rawZ = data[4] << 8 | data[5];  //上位ビットが先
+
+        printf("%8.7f", rawX);
+        printf("　");
+        printf("%8.7f", rawY);
+        printf("　");
+        printf("%8.7f\n", rawZ);
+
+        time_sleep(1);
+    }
+    return 0;
 }
