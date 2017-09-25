@@ -33,8 +33,12 @@ int main(int argc, char **argv)
     while(ros::ok())
     {
         char data[6];
+<<<<<<< HEAD
         //i2c_read_i2c_block_data(int pi, unsigned handle, unsigned i2c_reg, c    har *buf, unsigned count(欲しいバイト数))
         i2c_read_i2c_block_data(pi, handle, 0x3B, data, 6);
+=======
+        i2c_read_i2c_block_data(pi, handle, 0x3B, data, 6); //i2c_read_i2c_block_data(int pi, unsigned handle, unsigned i2c_reg, char *buf, unsigned count(欲しいバイト数))
+>>>>>>> a9bd76bffdfaf5d59d6d5830f8b596e6ddd2d02a
         float rawX = (2.0 / float(0x8000)) * u2s(data[0] << 8 | data[1]);  //上位ビットが先
         float rawY = (2.0 / float(0x8000)) * u2s(data[2] << 8 | data[3]);  //上位ビットが先
         float rawZ = (2.0 / float(0x8000)) * u2s(data[4] << 8 | data[5]);  //上位ビットが先
