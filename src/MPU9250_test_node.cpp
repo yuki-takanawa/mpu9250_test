@@ -29,6 +29,9 @@ int main(int argc, char **argv)
     i2c_write_byte_data(pi, handle, 0x37, 0x00);
     time_sleep(0.1);
 
+    //加速度センサのレンジを±8gにする
+    i2c_write_byte_data(pi, handle, 0x1C, 0x08);
+
     //生データを取得する
     while(ros::ok())
     {
@@ -39,13 +42,11 @@ int main(int argc, char **argv)
         float rawY = (2.0 / float(0x8000)) * u2s(data[2] << 8 | data[3]);  //上位ビットが先
         float rawZ = (2.0 / float(0x8000)) * u2s(data[4] << 8 | data[5]);  //上位ビットが先
 
-        printf("%8.7f", rawX);
-        printf(" ");
-        printf("%8.7f", rawY);
-        printf(" ");
+        printf("%8.7f\t", rawX);
+        printf("%8.7f\t", rawY);
         printf("%8.7f\n", rawZ);
 
-        time_sleep(1);
+        time_sleep(0.5);
     }
     return 0;
 }
