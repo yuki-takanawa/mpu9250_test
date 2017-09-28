@@ -204,3 +204,5 @@ find_library(LIBPIGPIOD_IF2_LIBRARIES NAMES pigpiod_if2)
 
 add_executable(Accel src/Accel.cpp)
 target_link_libraries(Accel ${catkin_LIBRARIES} ${LIBPIGPIOD_IF2_LIBRARIES})
+add_executable(Temp src/Temp.cpp)
+target_link_libraries(Temp ${catkin_LIBRARIES} ${LIBPIGPIOD_IF2_LIBRARIES})
