@@ -12,9 +12,11 @@ int u2s(unsigned unsigneddata)
 
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "MPU9250_test_node");
+    ros::init(argc, argv, "Accel");
     ros::NodeHandle nh;
     ros::Rate loop_rate(1);
+
+
 
     int pi = pigpio_start(0, 0);
     //i2c_open(pi, unsigned i2c_bus, unsigned i2c_addr, unsigned i2c_flags)
@@ -62,6 +64,7 @@ int main(int argc, char **argv)
     //生データを取得する
     while(ros::ok()) 
     {
+
         i2c_read_i2c_block_data(pi, handle, 0x3B, data, 6);
         float rawX = (2.0 / float(0x8000)) * u2s(data[0] << 8 | data[1]);
         float rawY = (2.0 / float(0x8000)) * u2s(data[2] << 8 | data[3]);
@@ -71,6 +74,8 @@ int main(int argc, char **argv)
         float rawY_1 = (2.0 / float(0x8000)) * u2s(data[2] << 8 | data[3]) + offsetAccelY;
         float rawZ_1 = (2.0 / float(0x8000)) * u2s(data[4] << 8 | data[5]) + offsetAccelZ;
 
+
+        //LPFを適用
         static float X[2] = {0, 0};
         static float Y[2] = {0, 0};
         static float Z[2] = {0, 0};
@@ -79,6 +84,7 @@ int main(int argc, char **argv)
         Y[1] = 0.8 * Y[0] + 0.2 * rawY_1;
         Z[1] = 0.8 * Z[0] + 0.2 * rawZ_1;
 
+        //生データ & 較正値＋LPF
         printf("%8.7f\t", rawX);
         printf("%8.7f\t", rawY);
         printf("%8.7f\t", rawZ);
@@ -90,7 +96,7 @@ int main(int argc, char **argv)
         Y[0] = Y[1];
         Z[0] = Z[1];
 
-        time_sleep(0.1);
+        loop_rate.sleep();
     }
     return 0;
 }
