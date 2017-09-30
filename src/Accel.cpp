@@ -31,6 +31,9 @@ int main(int argc, char **argv)
     i2c_write_byte_data(pi, handle, 0x6B, 0x00);
     time_sleep(0.1);
 
+    //low-passフィルタを設定
+    i2c_write_byte_data(pi, handle, 0x1D, 0x03);
+
     //加速度センサのレンジを±8gにする
     i2c_write_byte_data(pi, handle, 0x1C, 0x02);
 
@@ -76,25 +79,30 @@ int main(int argc, char **argv)
 
 
         //LPFを適用
-        static float X[2] = {0, 0};
+        /*static float X[2] = {0, 0};
         static float Y[2] = {0, 0};
         static float Z[2] = {0, 0};
 
         X[1] = 0.8 * X[0] + 0.2 * rawX_1;
         Y[1] = 0.8 * Y[0] + 0.2 * rawY_1;
         Z[1] = 0.8 * Z[0] + 0.2 * rawZ_1;
-
+*/
         //生データ & 較正値＋LPF
         printf("%8.7f\t", rawX);
         printf("%8.7f\t", rawY);
         printf("%8.7f\t", rawZ);
-        printf("%8.7f\t", X[1]);
+  /*      printf("%8.7f\t", X[1]);
         printf("%8.7f\t", Y[1]);
         printf("%8.7f\n", Z[1]);
-
+        
         X[0] = X[1];
         Y[0] = Y[1];
         Z[0] = Z[1];
+*/
+
+        printf("%8.7f\t", rawX_1);
+        printf("%8.7f\t", rawY_1);
+        printf("%8.7f\n", rawZ_1);
 
         loop_rate.sleep();
     }
