@@ -49,7 +49,6 @@ int main(int argc, char **argv)
         sum[0] += gyroCoefficient * u2s(data[0] << 8 | data[1]);
         sum[1] += gyroCoefficient * u2s(data[2] << 8 | data[3]);
         sum[2] += gyroCoefficient * u2s(data[4] << 8 | data[5]);
-        printf("%d\n", i);
     }
 
     //平均値をオフセットにする
