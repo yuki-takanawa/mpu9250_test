@@ -1,5 +1,7 @@
 #include "ros/ros.h"
 #include <pigpiod_if2.h>
+#include <sensor_msgs/Imu.h>
+//#include <geometry_msgs/Vector3.h>
 
 int u2s(unsigned unsigneddata)
 {
@@ -14,9 +16,10 @@ int main(int argc, char **argv)
 {
     ros::init(argc, argv, "Accel");
     ros::NodeHandle nh;
-    ros::Rate loop_rate(1);
+    ros::Rate loop_rate(10);
 
-
+    ros::Publisher imu_pub = nh.advertise<sensor_msgs::Imu>("data", 10);
+    sensor_msgs::Imu msg;
 
     int pi = pigpio_start(0, 0);
     //i2c_open(pi, unsigned i2c_bus, unsigned i2c_addr, unsigned i2c_flags)
@@ -57,11 +60,14 @@ int main(int argc, char **argv)
     //平均値をオフセットにする
     float offsetAccelX = -1.0 * sum[0] / 1000;
     float offsetAccelY = -1.0 * sum[1] / 1000;
-    float offsetAccelZ = -1.0 * sum[2] / 1000;
+    float offsetAccelZ = -1.0 * ((sum[2] / 1000) - 1.0);
 
     
     printf("Accel calibration complete\n");
 
+
+    //重力である1Gの加速度（m/s^2）
+    float ms2 = 9.80665;
 
 
     //生データを取得する
@@ -77,32 +83,24 @@ int main(int argc, char **argv)
         float rawY_1 = (2.0 / float(0x8000)) * u2s(data[2] << 8 | data[3]) + offsetAccelY;
         float rawZ_1 = (2.0 / float(0x8000)) * u2s(data[4] << 8 | data[5]) + offsetAccelZ;
 
+        float ax = rawX_1 * ms2;
+        float ay = rawY_1 * ms2;
+        float az = rawZ_1 * ms2;
 
-        //LPFを適用
-        /*static float X[2] = {0, 0};
-        static float Y[2] = {0, 0};
-        static float Z[2] = {0, 0};
+        msg.linear_acceleration.x = ax;
+        msg.linear_acceleration.y = ay;
+        msg.linear_acceleration.z = az;
+        imu_pub.publish(msg);
 
-        X[1] = 0.8 * X[0] + 0.2 * rawX_1;
-        Y[1] = 0.8 * Y[0] + 0.2 * rawY_1;
-        Z[1] = 0.8 * Z[0] + 0.2 * rawZ_1;
-*/
         //生データ & 較正値＋LPF
         printf("%8.7f\t", rawX);
         printf("%8.7f\t", rawY);
         printf("%8.7f\t", rawZ);
-  /*      printf("%8.7f\t", X[1]);
-        printf("%8.7f\t", Y[1]);
-        printf("%8.7f\n", Z[1]);
-        
-        X[0] = X[1];
-        Y[0] = Y[1];
-        Z[0] = Z[1];
-*/
+        printf("%8.7f\t", rawX_1 * ms2);
+        printf("%8.7f\t", rawY_1 * ms2);
+        printf("%8.7f\n", rawZ_1 * ms2);
 
-        printf("%8.7f\t", rawX_1);
-        printf("%8.7f\t", rawY_1);
-        printf("%8.7f\n", rawZ_1);
+        ros::spinOnce();
 
         loop_rate.sleep();
     }
