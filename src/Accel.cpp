@@ -21,6 +21,8 @@ int main(int argc, char **argv)
     ros::Publisher imu_pub = nh.advertise<sensor_msgs::Imu>("data", 10);
     sensor_msgs::Imu msg;
 
+    msg.header.frame_id = "my_frame";
+
     int pi = pigpio_start(0, 0);
     //i2c_open(pi, unsigned i2c_bus, unsigned i2c_addr, unsigned i2c_flags)
     unsigned handle = i2c_open(pi, 1, 0x68, 0);
@@ -86,6 +88,7 @@ int main(int argc, char **argv)
         float ax = rawX_1 * ms2;
         float ay = rawY_1 * ms2;
         float az = rawZ_1 * ms2;
+
 
         msg.linear_acceleration.x = ax;
         msg.linear_acceleration.y = ay;
