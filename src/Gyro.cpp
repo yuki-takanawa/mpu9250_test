@@ -1,5 +1,7 @@
 #include "ros/ros.h"
 #include <pigpiod_if2.h>
+#include <sensor_msgs/Imu.h>
+
 
 int u2s(unsigned unsigneddata)
 {
@@ -14,7 +16,12 @@ int main(int argc, char **argv)
 {
     ros::init(argc, argv, "Gyro");
     ros::NodeHandle nh;
-    ros::Rate loop_rate(1);
+    ros::Rate loop_rate(10);
+
+    ros::Publisher imu_pub = nh.advertise<sensor_msgs::Imu>("data", 10);
+    sensor_msgs::Imu msg;
+
+    msg.header.frame_id = "map";
 
     int pi = pigpio_start(0, 0);
     unsigned handle = i2c_open(pi, 1, 0x68, 0);
@@ -58,6 +65,10 @@ int main(int argc, char **argv)
 
     printf("Gyro calibration complete\n");
 
+    float pregx = 0, pregy = 0, pregz = 0;
+    float degreeX = 0, degreeY = 0, degreeZ = 0;
+    float dt = 0.1;
+
 
     //データを取得する
     while(ros::ok())
@@ -71,12 +82,28 @@ int main(int argc, char **argv)
         float rawY_1 = gyroCoefficient * u2s(data[2] << 8 | data[3]) + offsetGyroY;
         float rawZ_1 = gyroCoefficient * u2s(data[4] << 8 | data[5]) + offsetGyroZ;
 
+        //角度を計算
+        degreeX += (pregx + rawX_1) * dt / 2;
+        degreeY += (pregy + rawY_1) * dt / 2;
+        degreeZ += (pregz + rawZ_1) * dt / 2;
+
+        pregx = rawX_1;
+        pregy = rawY_1;
+        pregz = rawZ_1;
+
+        msg.angular_velocity.x = degreeX;
+        msg.angular_velocity.y = degreeY;
+        msg.angular_velocity.z = degreeZ;
+        imu_pub.publish(msg);
+
         printf("%8.7f\t", rawX);
         printf("%8.7f\t", rawY);
         printf("%8.7f\t", rawZ);
-        printf("%8.7f\t", rawX_1);
-        printf("%8.7f\t", rawY_1);
-        printf("%8.7f\n", rawZ_1);
+        printf("%8.7f\t", degreeX);
+        printf("%8.7f\t", degreeY);
+        printf("%8.7f\n", degreeZ);
+
+        ros::spinOnce();
 
         loop_rate.sleep();
     }
