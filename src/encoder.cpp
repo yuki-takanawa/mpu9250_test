@@ -23,6 +23,8 @@ long sum = 0;
 int direction = 0;
 int parse;
 
+void rotary_changedPin(void);
+
 int main(int argc, char **argv)	//int main(void)だとROSの関数が使えない
 {
 	ros::init(argc, argv, "led_test_node");	//ノード名の初期化「ros::init(argc, argv, "起動時に指定するノード名");」(必須！)
@@ -52,16 +54,16 @@ int main(int argc, char **argv)	//int main(void)だとROSの関数が使えな�
     {
       parse = 3;
     }
-    int callback(pi, pinA, 2, rotary_changedPin );
-    int callback(pi, pinB, 2, rotary_changedPin );
-    while(rod::ok()){				//ctrl + Cが押されるまで繰り返す
-    	now_a = digitalRead(pinA);
- 		now_b = digitalRead(pinB);
+    callback(pi, pinA, 2, rotary_changedPin );
+    callback(pi, pinB, 2, rotary_changedPin );
+    while(ros::ok()){				//ctrl + Cが押されるまで繰り返す
+    		now_a = gpio_read(pi, pinA);
+ 		now_b = gpio_read(pi, pinB);
   		//シリアルコンソールに現在の値を出力。
-  		printf(rot_count); //printfで良い。
+  		printf("%f", rot_count); //printfで良い。
  		printf("      ");
   		sum=rot_count/2500;
-  		printf(sum);
+  		printf("%d", sum);
   		printf(" m \t ");//1mごとに表示
   		printf("      ");
   		printf("%d\n", parse);
