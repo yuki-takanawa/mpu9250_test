@@ -31,8 +31,8 @@ int main(int argc, char **argv)	//int main(void)だとROSの関数が使えな�
 	int current_a;
 	int current_b;
 	int now_a = 0, now_b = 0;
-	set_mode(pi, pinA, PI_INPUT);	//GPIOピンの設定「set_mode(pi, "ピン番号", "PI_OUTPUTかPI_INPUT");」
-	set_mode(pi, pinB, PI_INPUT);	//GPIOピンの設定「set_mode(pi, "ピン番号", "PI_OUTPUTかPI_INPUT");」
+	set_pull_up_down(pi, pinA, PI_PUD_DOWN);	//GPIOピンの設定「set_mode(pi, "ピン番号", "PI_OUTPUTかPI_INPUT");」
+	set_pull_up_down(pi, pinB, PI_PUD_DOWN);	//GPIOピンの設定「set_mode(pi, "ピン番号", "PI_OUTPUTかPI_INPUT");」
 	current_a = gpio_read(pi, pinA);
 	current_b = gpio_read(pi, pinB);
 	/* rotary振り分け関数 */
